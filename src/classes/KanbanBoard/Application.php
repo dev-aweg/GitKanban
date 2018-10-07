@@ -55,12 +55,14 @@ class Application {
 		{
 			if (isset($ii['pull_request']))
 				continue;
+			$assignee = (is_array($ii) && array_key_exists('assignee', $ii) && !empty($ii['assignee'])) ? $ii['assignee']['avatar_url'].'?s=16' : NULL;
 			$issues[$ii['state'] === 'closed' ? 'completed' : (($ii['assignee']) ? 'active' : 'queued')][] = array(
-				'id' => $ii['id'], 'number' => $ii['number'],
-				'title'            	=> $ii['title'],
-				'body'             	=> Markdown::defaultTransform($ii['body']),
-     'url' => $ii['html_url'],
-				'assignee'         	=> (is_array($ii) && array_key_exists('assignee', $ii) && !empty($ii['assignee'])) ? $ii['assignee']['avatar_url'].'?s=16' : NULL,
+				'id'				=> $ii['id'],
+				'number'			=> $ii['number'],
+				'title'				=> $ii['title'],
+				'body'				=> Markdown::defaultTransform($ii['body']),
+				'url'				=>$ii['html_url'],
+				'assignee'			=> $assignee,
 				'paused'			=> self::labels_match($ii, $this->paused_labels),
 				'progress'			=> self::_percent(
 											substr_count(strtolower($ii['body']), '[x]'),
@@ -76,16 +78,6 @@ class Application {
 		return $issues;
 	}
 
-	private static function _state($issue)
-	{
-		if ($issue['state'] === 'closed')
-			return 'completed';
-		else if (Utilities::hasValue($issue, 'assignee') && count($issue['assignee']) > 0)
-			return 'active';
-		else
-			return 'queued';
-	}
-
 	private static function labels_match($issue, $needles)
 	{
 		if(Utilities::hasValue($issue, 'labels')) {
@@ -96,7 +88,6 @@ class Application {
 			}
 		}
 		return array();
-
 	}
 
 	private static function _percent($complete, $remaining)
