@@ -68,9 +68,11 @@ class Application {
 				'closed'			=> $ii['closed_at']
 			);
 		}
-		usort($issues['active'], function ($a, $b) {
-			return count($a['paused']) - count($b['paused']) === 0 ? strcmp($a['title'], $b['title']) : count($a['paused']) - count($b['paused']);
-		});
+		if(is_array($issues['active'])){
+			usort($issues['active'], function ($a, $b) {
+				return count($a['paused']) - count($b['paused']) === 0 ? strcmp($a['title'], $b['title']) : count($a['paused']) - count($b['paused']);
+			});
+		}
 		return $issues;
 	}
 
